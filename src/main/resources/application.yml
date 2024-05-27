@@ -1,0 +1,13 @@
+server:
+  port: 9007
+
+spring:
+  application:
+    name: EI-Scheduler-service
+
+  profiles.active : dev
+  datasource:
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    password: Passw0rd@1234567
+    url: jdbc:sqlserver://optimusdevmi.a59544804564.database.windows.net; databaseName=optimus-sql-dev
+    username: optimus
