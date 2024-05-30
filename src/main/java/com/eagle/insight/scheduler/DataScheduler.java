@@ -1,6 +1,5 @@
 package com.eagle.insight.scheduler;
 
-import com.eagle.insight.scheduler.model.PARole;
 import com.eagle.insight.scheduler.model.UserRole;
 import com.eagle.insight.scheduler.model.UserRoleMapping;
 import com.eagle.insight.scheduler.repository.PARoleRepository;
@@ -10,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,56 +31,97 @@ public class DataScheduler {
         System.out.println("Running scheduler" + new Date());
         List<UserRole> userRoles = userRoleRepository.getAllUserRoles();
         System.out.println("User Role  - " + userRoles.size());
-//Query2
-/*        List<PARole> paRole = paRoleRepository.getAllPARoles();
-        System.out.println("PA Role  - "+ paRole.size());*/
-
 
         System.out.println("Fetching all records from UserRoleMappingTable");
         List<UserRoleMapping> userRoleMapping = userRoleMappingRepository.findAll();
         System.out.println(userRoleMapping.size());
+    //T2 record absent in T1 then setting active flag to 0
+        List<UserRoleMapping> inactivatedRoles = userRoleMapping.stream()
+                .filter(urm -> checkIfAbsent(urm, userRoles))
+                .map(urm -> {
+                    urm.setActiveFlag(0);
+                    return urm;
+                })
+                .collect(Collectors.toList());
+        userRoleMappingRepository.saveAll(inactivatedRoles);
+
+        // check if record already exists in T2, if exists? check if End date is same : consider as new record and save
+        for (UserRole userRole : userRoles) {
+            UserRoleMapping userRoleMapping1 = checkIfPresent(userRole, userRoleMapping);
+            if (userRoleMapping1 != null) {
+                SimpleDateFormat myFormat = new SimpleDateFormat("yyyy-MM-dd");
+                if (!userRole.getEndDate().equalsIgnoreCase(userRoleMapping1.getEndDate().replaceAll("-",""))) {
+                    System.out.println("userRole.getEndDate() : " + userRole.getEndDate() + " userRoleMapping1.getEndDate()" + userRoleMapping1.getEndDate());
+                    //update if enddate is changed
+                    userRoleMappingRepository.save(userRoleMapping1);
+                    System.out.println("User Role Mapping updated : " + userRoleMapping1);
+                }
+                // do nothing, if userId, roleId and end date are same
+            } else {
+                // create new row, if userRoleMapping is absent
+                UserRoleMapping userRoleMapping2 = constructUserRoleMapping(userRole);
+                userRoleMappingRepository.save(userRoleMapping2);
+                System.out.println("User Role Mapping inserted : " + userRoleMapping2);
+            }
+        }
+        System.out.println("All the Records migrated successfully");
+
 //Table1 - userRoles
 // Table2 - userRoleMapping
-
-        List<UserRole> modilfiedUserRoles = userRoles.stream()
+        /*List<UserRole> modilfiedUserRoles = userRoles.stream()
                 .filter(userRole -> isUserRoleChanged(userRole, userRoleMapping)).collect(Collectors.toList());
-
-
-
-    /*     List<UserRoleMapping> userRoleMappingResult =
-
-       //
-         userRoles.stream()
-                .filter(e -> !userRoleMapping.contains(e))
-                .collect(Collectors.toList());
-
 */
 
-        List<UserRoleMapping> userRoleMappingList = constructUserRoleMappings(userRoles);
+ /*       List<UserRoleMapping> userRoleMappingList = constructUserRoleMappings(userRoles);
         userRoleMappingRepository.saveAll(userRoleMappingList);
-        System.out.println("All the records are successfully saved");
+        System.out.println("All the records are successfully saved");*/
 
     }
 
-    private boolean isUserRoleChanged(UserRole userRole, List<UserRoleMapping> userRoleMappings) {
+    private boolean checkIfAbsent(UserRoleMapping urm, List<UserRole> userRoles) {
+        return userRoles.stream().noneMatch(e -> e.getUserId().equalsIgnoreCase(urm.getUserId()) &&
+                e.getRoleId().equalsIgnoreCase(urm.getRoleId()));
+    }
+
+    private UserRoleMapping checkIfPresent(UserRole userRole, List<UserRoleMapping> userRoleMapping) {
+        return userRoleMapping.stream().filter(e -> e.getUserId().equalsIgnoreCase(userRole.getUserId()) &&
+                e.getRoleId().equalsIgnoreCase(userRole.getRoleId())).findAny().orElse(null);
+    }
+
+    private UserRoleMapping constructUserRoleMapping(UserRole userRole) {
+        return UserRoleMapping.builder()
+                .userId(userRole.getUserId())
+                .roleId(userRole.getRoleId())
+                .effectiveDate(new Date())
+                .endDate(userRole.getEndDate())
+                .activeFlag(1)
+                .createdOn(new Date())
+                //TODO -
+                .createdBy("sysUser")
+                .changedOn(null)
+                .changedBy(null)
+                .build();
+    }
+
+/*    private boolean isUserRoleChanged(UserRole userRole, List<UserRoleMapping> userRoleMappings) {
         userRoleMappings.stream().filter(e -> e.getUserId().equals(userRole.getUserId())
-        && (e.getRoleId().equalsIgnoreCase(userRole.getRoleId())
-        || (e.getEndDate().equals(userRole.getEndDate()))
+                        && (e.getRoleId().equalsIgnoreCase(userRole.getRoleId())
+                        || (e.getEndDate().equals(userRole.getEndDate()))
                 )
 
         ).collect(Collectors.toList());
 
-    }
+    }*/
 
     //    public List<UserRole> getAllUsers() {
 //        return employeeRepository.findAll();
 //    }
-    private List<UserRoleMapping> constructUserRoleMappings(List<UserRole> userRoles) {
+    /*private List<UserRoleMapping> constructUserRoleMappings(List<UserRole> userRoles) {
         return userRoles.stream().map(userRole ->
                         UserRoleMapping.builder()
-/*                        //TODO - PA role
+*//*                        //TODO - PA role
                         .userId(paRole.getUserId())
-                        .roleId(paRole.getRoleId())*/
+                        .roleId(paRole.getRoleId())*//*
                                 .userId(userRole.getUserId())
                                 .roleId(userRole.getRoleId())
                                 .effectiveDate(new Date())
@@ -93,5 +134,5 @@ public class DataScheduler {
                                 .changedBy(null)
                                 .build()
         ).collect(Collectors.toList());
-    }
+    }*/
 }
