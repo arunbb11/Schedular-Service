@@ -24,7 +24,12 @@ public class UserRole {
 //    String roleId;
 //    String endDate;
 
+  //  @Id
+
     @Id
+    @Column(name = "DB_KEY")
+    private String dbKey;
+
     @Column(name = "USER_ID")
     private String userId;
 

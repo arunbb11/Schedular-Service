@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,7 +34,8 @@ public class DataScheduler {
         System.out.println("Fetching all records from UserRoleMappingTable");
         List<UserRoleMapping> userRoleMapping = userRoleMappingRepository.findAll();
         System.out.println(userRoleMapping.size());
-    //T2 record absent in T1 then setting active flag to 0
+
+        //T2 record absent in T1 then setting active flag to 0
         List<UserRoleMapping> inactivatedRoles = userRoleMapping.stream()
                 .filter(urm -> checkIfAbsent(urm, userRoles))
                 .map(urm -> {
@@ -49,8 +49,7 @@ public class DataScheduler {
         for (UserRole userRole : userRoles) {
             UserRoleMapping userRoleMapping1 = checkIfPresent(userRole, userRoleMapping);
             if (userRoleMapping1 != null) {
-                SimpleDateFormat myFormat = new SimpleDateFormat("yyyy-MM-dd");
-                if (!userRole.getEndDate().equalsIgnoreCase(userRoleMapping1.getEndDate().replaceAll("-",""))) {
+                if (!userRole.getEndDate().equalsIgnoreCase(userRoleMapping1.getEndDate().replaceAll("-", ""))) {
                     System.out.println("userRole.getEndDate() : " + userRole.getEndDate() + " userRoleMapping1.getEndDate()" + userRoleMapping1.getEndDate());
                     //update if enddate is changed
                     userRoleMappingRepository.save(userRoleMapping1);
