@@ -10,6 +10,4 @@ import java.util.List;
 @Repository
 @Transactional
 public interface UserRoleMappingRepository extends JpaRepository<UserRoleMapping, String> {
-//    public List<UserRoleMapping> getAllUserRoleMappingRecords();
-
 }

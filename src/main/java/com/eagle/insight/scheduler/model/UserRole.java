@@ -24,8 +24,7 @@ public class UserRole {
 //    String roleId;
 //    String endDate;
 
-  //  @Id
-
+//We need unique column as JPA is not working properly
     @Id
     @Column(name = "DB_KEY")
     private String dbKey;

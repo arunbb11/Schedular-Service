@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "PA0001", schema = "RFC")
 public class PARole {
 
+    //TODO  - unique column
+
     @Id
     @Column(name = "USER_ID")
     private String userId;

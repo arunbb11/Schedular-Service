@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 @Transactional
-public interface PARoleRepository extends JpaRepository<UserRole, String> {
+public interface PARoleRepository extends JpaRepository<PARole, String> {
     String query = "select distinct PA.PERNR as user_id,\n" +
             "\n" +
             "case \n" +
