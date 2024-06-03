@@ -1,7 +1,6 @@
 package com.eagle.insight.scheduler.repository;
 
 import com.eagle.insight.scheduler.model.PARole;
-import com.eagle.insight.scheduler.model.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -67,6 +66,7 @@ public interface PARoleRepository extends JpaRepository<PARole, String> {
             "OR HR1003.ZZFUNCTION = 'X' OR HR1003.ZZSUB_FUNCTION= 'X' )\n" +
             "\n" +
             "order by PA.PERNR\n";
+
     @Query(value = query, nativeQuery = true)
     public List<PARole> getAllPARoles();
 }

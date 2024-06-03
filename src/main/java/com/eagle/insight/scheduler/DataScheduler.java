@@ -18,7 +18,7 @@ public class DataScheduler {
     @Scheduled(fixedRate = 1000000)
     //@Scheduled(cron = "0/15 * * * * *")
     public void runJob() throws InterruptedException {
-//        userRoleProcessor.processUserRoleData();
+        userRoleProcessor.processUserRoleData();
         paRoleProcessor.processPAData();
 
 

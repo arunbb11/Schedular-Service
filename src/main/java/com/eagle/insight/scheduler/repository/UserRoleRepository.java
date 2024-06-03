@@ -36,9 +36,10 @@ public interface UserRoleRepository extends JpaRepository<UserRole, String> {
             "  and ps.valid_to = (select max(valid_to) from RFC.ZPS_PROJ_STAKE ps1 where ps.STAKEHOLDER_ID = ps1.STAKEHOLDER_ID\n" +
             "\n" +
             "  and ps.STAKEHOLDER_ROLE = ps1.STAKEHOLDER_ROLE) \n" +
-            " and PS.STAKEHOLDER_ID ='00010258'"+
+            " and PS.STAKEHOLDER_ID ='00010258'" +
             "\n" +
             "  order by user_id, STAKEHOLDER_ROLE";
+
     @Query(value = query, nativeQuery = true)
     public List<UserRole> getAllUserRoles();
 }
